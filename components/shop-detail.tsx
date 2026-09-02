@@ -61,7 +61,7 @@ export function ShopDetail({
 
   // 좌표 기반 길찾기. 주소가 없을 수 있으므로 좌표로 여는 게 가장 안전하다.
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}`;
-  const distance = usedFallback ? d.distanceFromSeoul(shop.distanceKm) : d.distanceAway(shop.distanceKm);
+  const distance = usedFallback ? d.distanceFromMyeongdong(shop.distanceKm) : d.distanceAway(shop.distanceKm);
 
   return (
     <div className="flex max-h-[75dvh] flex-col overflow-hidden rounded-t-2xl border-t border-border bg-card sm:max-h-[80dvh] sm:rounded-2xl sm:border">

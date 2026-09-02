@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlertCircle, BadgeCheck, Loader2, MapPin, ShoppingBag } from 'lucide-react';
 
 import type { LatLon } from '@/lib/geo';
-import { SEOUL } from '@/lib/geo';
+import { MYEONGDONG } from '@/lib/geo';
 import type { BrandInfo } from '@/lib/brands';
 import type { ShopWithDistance, ShopsResponse } from '@/lib/types';
 import { dict, LOCALES, LOCALE_LABEL, type Locale } from '@/lib/i18n';
@@ -39,7 +39,7 @@ export function ShopsBrowser({ locale }: { locale: Locale }) {
   const [brands, setBrands] = useState<BrandInfo[]>([]);
 
   const hasRealLocation = geo.kind === 'granted';
-  const origin: LatLon = geo.kind === 'granted' ? geo.at : SEOUL;
+  const origin: LatLon = geo.kind === 'granted' ? geo.at : MYEONGDONG;
 
   /* 위치. map 화면 진입은 "내 주변"을 보겠다는 의도라 한 번 요청.
      거부/불가/미지원을 각각 다른 상태로 두고, 어느 경우든 서울로 폴백해 계속 동작한다. */
@@ -125,7 +125,9 @@ export function ShopsBrowser({ locale }: { locale: Locale }) {
   );
 
   const selected = shops.find((s) => s.id === selectedId) ?? null;
-  const center = hasRealLocation ? origin : null;
+  // 지도 중심: origin 이 실제 위치(granted) 또는 명동(폴백)으로 이미 정해져 있다.
+  // 파란 '내 위치' 점은 실제 위치일 때만(명동을 내 위치인 척하지 않는다).
+  const center = origin;
 
   return (
     <div className="flex h-dvh flex-col">
@@ -222,7 +224,7 @@ export function ShopsBrowser({ locale }: { locale: Locale }) {
         {/* 지도 */}
         <div className="relative h-[45dvh] w-full shrink-0 sm:h-auto sm:flex-1">
           {(data.kind === 'ready' || (data.kind === 'loading' && shops.length > 0)) && (
-            <ShopsMap points={points} center={center} selectedId={selectedId} onSelect={setSelectedId} />
+            <ShopsMap points={points} center={center} isUserLocation={hasRealLocation} selectedId={selectedId} onSelect={setSelectedId} />
           )}
           {data.kind === 'loading' && shops.length === 0 && (
             <div className="flex size-full items-center justify-center gap-2 text-sm text-muted-foreground">

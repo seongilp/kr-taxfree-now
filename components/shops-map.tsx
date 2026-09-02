@@ -52,12 +52,15 @@ const EMPTY: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: 
 export function ShopsMap({
   points,
   center,
+  isUserLocation,
   selectedId,
   onSelect,
 }: {
   points: MapPoint[];
-  /** 현재 위치(있으면). 지도가 여기를 중심으로 처음 맞춰지고 파란 점을 찍는다. */
-  center: LatLon | null;
+  /** 지도 초기 중심. 실제 위치면 그 좌표, 폴백이면 명동. 항상 여기로 맞춘다(전국 축소 뷰 금지). */
+  center: LatLon;
+  /** center 가 사용자의 실제 위치인가. true 일 때만 파란 '내 위치' 점을 찍는다(폴백은 안 찍음). */
+  isUserLocation: boolean;
   selectedId: string | null;
   onSelect: (id: string) => void;
 }) {
@@ -159,9 +162,10 @@ export function ShopsMap({
       map.resize();
       if (fittedRef.current) return;
       fittedRef.current = true;
+      // center 는 항상 있다(실제 위치 또는 명동 폴백). 전국 축소 뷰로 두지 않는다 —
+      // 매장이 안 보이는 어두운 빈 지도가 '지도가 안 뜬다'는 오해를 부른다.
       const c = centerRef.current;
-      if (c) map.easeTo({ center: [c.lon, c.lat], zoom: 12, duration: 0 });
-      else map.fitBounds(KOREA_BOUNDS, { padding: FIT_PADDING, duration: 0 });
+      map.easeTo({ center: [c.lon, c.lat], zoom: 12, duration: 0 });
     });
     observer.observe(containerRef.current);
 
@@ -183,19 +187,23 @@ export function ShopsMap({
     );
   }, [points]);
 
-  /* 현재 위치 마커 + 최초 위치로 이동. */
+  /* 초기/변경 시 중심 이동 + (실제 위치일 때만) 파란 '내 위치' 점.
+     폴백(명동)일 땐 점을 찍지 않는다 — 명동을 '내 위치'인 척하지 않기 위해서다(정직성). */
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !center) return;
-    const el = document.createElement('div');
-    el.className = 'kr-user-dot';
-    const marker = new maplibregl.Marker({ element: el }).setLngLat([center.lon, center.lat]).addTo(map);
+    if (!map) return;
+    let marker: maplibregl.Marker | null = null;
+    if (isUserLocation) {
+      const el = document.createElement('div');
+      el.className = 'kr-user-dot';
+      marker = new maplibregl.Marker({ element: el }).setLngLat([center.lon, center.lat]).addTo(map);
+    }
     if (loadedRef.current && !fittedRef.current) {
       fittedRef.current = true;
       map.easeTo({ center: [center.lon, center.lat], zoom: 12, duration: 400 });
     }
-    return () => void marker.remove();
-  }, [center]);
+    return () => void marker?.remove();
+  }, [center, isUserLocation]);
 
   /* 선택 강조 + 화면으로 끌어오기. */
   useEffect(() => {

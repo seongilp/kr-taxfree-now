@@ -14,8 +14,12 @@ export interface LatLon {
   lon: number;
 }
 
-/** 서울시청. 위치 권한이 없거나 거부됐을 때의 폴백 중심. */
-export const SEOUL: LatLon = { lat: 37.5665, lon: 126.978 };
+/**
+ * 명동. 위치 권한이 없거나 거부됐을 때의 폴백 중심.
+ * 외국인 관광객 앱이라 서울시청보다 명동이 더 맞다(면세·쇼핑 밀집지).
+ * 폴백임을 화면에 정직하게 밝힌다(usedFallback → '명동 기준').
+ */
+export const MYEONGDONG: LatLon = { lat: 37.5636, lon: 126.9827 };
 
 const toRad = (deg: number) => (deg * Math.PI) / 180;
 

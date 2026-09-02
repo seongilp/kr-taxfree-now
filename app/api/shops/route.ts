@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 
 import { getCatalogCached } from '@/lib/kto-cache';
 import { isLocale, SERVICE_BY_LOCALE } from '@/lib/i18n';
-import { nearest, SEOUL, type LatLon } from '@/lib/geo';
+import { nearest, MYEONGDONG, type LatLon } from '@/lib/geo';
+import { swrCacheControl } from '@/lib/cache-control';
 
 /**
  * ★ 이 앱의 심장: 서버 공간 필터.
@@ -11,9 +12,16 @@ import { nearest, SEOUL, type LatLon } from '@/lib/geo';
  * 전량을 캐시(언어당 하루 1회 업스트림)하고, 요청 좌표 기준으로 가까운 N건만 골라 내린다.
  * 위치가 바뀌어도 업스트림은 0 — 캐시된 전량에서 다시 고를 뿐이다.
  *
- * 쿼리: lang(필수), lat/lon(없으면 서울 폴백), brand(브랜드 키), taxRefundOnly(1/0).
+ * 쿼리: lang(필수), lat/lon(없으면 명동 폴백), brand(브랜드 키), taxRefundOnly(1/0).
  * 응답: shops(가까운 순 ≤LIMIT, 거리 포함), brands(칩용 상위 브랜드), meta.
- * 캐시: 좌표마다 응답이 달라 CDN 캐시가 무의미하므로 no-store. 업스트림 보호는 서버 메모리 캐시가 한다.
+ *
+ * 캐시(두 갈래):
+ *  - **좌표 없는 요청(명동 폴백)**: 응답이 lang+필터에만 의존해 전 사용자가 동일 → CDN 이
+ *    캐시 가능. s-maxage + stale-while-revalidate 로 콜드도 즉시 응답(느린 첫 로딩 해소).
+ *    이게 위치 거부 사용자(흔함)의 느림을 없애는 1순위 수정이다.
+ *  - **좌표 있는 요청(실제 위치)**: 좌표마다 응답이 달라 CDN 이 안 먹으므로 no-store.
+ *    대신 카탈로그가 인스턴스 간 공유 Data Cache 라(kto-api) 콜드도 빠르다(4.5s→~).
+ *  업스트림 보호는 모듈 캐시 + Data Cache 가 한다.
  */
 
 const LIMIT = 200; // 클라이언트로 내리는 최대 건수(payload ~30KB). 지도·리스트가 감당할 상한.
@@ -35,7 +43,7 @@ export async function GET(req: Request) {
   // 좌표 검증(경도 124~132, 위도 33~39 = 한국 근방). 없거나 이상하면 서울 폴백.
   const lat = parseCoord(searchParams.get('lat'), 33, 39);
   const lon = parseCoord(searchParams.get('lon'), 124, 132);
-  const origin: LatLon = lat != null && lon != null ? { lat, lon } : SEOUL;
+  const origin: LatLon = lat != null && lon != null ? { lat, lon } : MYEONGDONG;
   const usedFallback = lat == null || lon == null;
 
   const brand = searchParams.get('brand')?.trim() || null;
@@ -65,7 +73,12 @@ export async function GET(req: Request) {
           truncated: pool.length > shops.length,
         },
       },
-      { headers: { 'Cache-Control': 'no-store' } },
+      {
+        headers: {
+          // 좌표 없는 폴백 응답만 CDN 캐시(전 사용자 동일). 실좌표는 사용자마다 달라 no-store.
+          'Cache-Control': usedFallback ? swrCacheControl(3600) : 'no-store',
+        },
+      },
     );
   } catch (e) {
     // "결측"이 아니라 "지금 불러오지 못함"으로 구분(F-6). 캐시 금지.

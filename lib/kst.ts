@@ -63,3 +63,8 @@ export function todayYmdKst(nowMs: number = Date.now()): string {
 export function msUntilKstMidnight(nowMs: number = Date.now()): number {
   return (kstToday(nowMs) + 1) * DAY_MS - KST_OFFSET_MS - nowMs;
 }
+
+/** 다음 KST 자정까지 남은 '초'. 항상 1 이상. CDN/Data Cache TTL 계산용. */
+export function secondsUntilKstMidnight(nowMs: number = Date.now()): number {
+  return Math.max(1, Math.ceil(msUntilKstMidnight(nowMs) / 1000));
+}

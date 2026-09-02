@@ -27,7 +27,7 @@ export function ShopCard({
   onSelect: () => void;
 }) {
   const d = dict(locale);
-  const distance = usedFallback ? d.distanceFromSeoul(shop.distanceKm) : d.distanceAway(shop.distanceKm);
+  const distance = usedFallback ? d.distanceFromMyeongdong(shop.distanceKm) : d.distanceAway(shop.distanceKm);
   return (
     <button
       type="button"

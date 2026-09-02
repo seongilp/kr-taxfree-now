@@ -64,7 +64,7 @@ export interface Dict {
   taxRefundGeneralInfo: string;
   /** 거리 */
   distanceAway: (km: number) => string;
-  distanceFromSeoul: (km: number) => string;
+  distanceFromMyeongdong: (km: number) => string;
   /** 상세 */
   detailAbout: string;
   detailAddress: string;
@@ -113,8 +113,8 @@ const en: Dict = {
   taxRefundGeneralInfo:
     'Bring your passport. A minimum purchase and other conditions usually apply, and rules vary by shop.',
   distanceAway: (km) => (km < 1 ? `${Math.round(km * 1000)} m away` : `${km.toFixed(1)} km away`),
-  distanceFromSeoul: (km) =>
-    km < 1 ? `${Math.round(km * 1000)} m from Seoul` : `${km.toFixed(1)} km from Seoul`,
+  distanceFromMyeongdong: (km) =>
+    km < 1 ? `${Math.round(km * 1000)} m from Myeongdong` : `${km.toFixed(1)} km from Myeongdong`,
   detailAbout: 'About',
   detailAddress: 'Address',
   detailTel: 'Contact',
@@ -130,9 +130,9 @@ const en: Dict = {
   loading: 'Loading shops…',
   locating: 'Finding your location…',
   locationDenied:
-    'Location permission denied — showing Seoul. You can enable it in your browser settings.',
-  locationUnavailable: 'Could not get your location — showing Seoul.',
-  locationFallback: 'Showing Seoul',
+    'Location permission denied — showing Myeongdong. You can enable it in your browser settings.',
+  locationUnavailable: 'Could not get your location — showing Myeongdong.',
+  locationFallback: 'Showing Myeongdong',
   useMyLocation: 'Use my location',
   dataSource: 'Data: Korea Tourism Organization (TourAPI)',
   langLabel: 'Language',
@@ -160,8 +160,8 @@ const ja: Dict = {
   taxRefundGeneralInfo:
     'パスポートをお持ちください。通常は最低購入金額などの条件があり、内容は店舗によって異なります。',
   distanceAway: (km) => (km < 1 ? `${Math.round(km * 1000)} m先` : `${km.toFixed(1)} km先`),
-  distanceFromSeoul: (km) =>
-    km < 1 ? `ソウルから${Math.round(km * 1000)} m` : `ソウルから${km.toFixed(1)} km`,
+  distanceFromMyeongdong: (km) =>
+    km < 1 ? `明洞から${Math.round(km * 1000)} m` : `明洞から${km.toFixed(1)} km`,
   detailAbout: '概要',
   detailAddress: '住所',
   detailTel: '連絡先',
@@ -176,9 +176,9 @@ const ja: Dict = {
   retry: '再試行',
   loading: 'お店を読み込み中…',
   locating: '現在地を取得中…',
-  locationDenied: '位置情報が拒否されました — ソウルを表示します。ブラウザ設定で許可できます。',
-  locationUnavailable: '現在地を取得できませんでした — ソウルを表示します。',
-  locationFallback: 'ソウルを表示中',
+  locationDenied: '位置情報が拒否されました — 明洞を表示します。ブラウザ設定で許可できます。',
+  locationUnavailable: '現在地を取得できませんでした — 明洞を表示します。',
+  locationFallback: '明洞を表示中',
   useMyLocation: '現在地を使う',
   dataSource: 'データ:韓国観光公社(TourAPI)',
   langLabel: '言語',
@@ -205,8 +205,8 @@ const zhCN: Dict = {
     '这些商店是韩国观光公社标记的「事后免税店」。我们无法告诉你退税比例或能退回多少 — 这取决于商店和退税运营商。请务必在店内确认。',
   taxRefundGeneralInfo: '请携带护照。通常有最低消费金额等条件,具体规定因店而异。',
   distanceAway: (km) => (km < 1 ? `${Math.round(km * 1000)} 米` : `${km.toFixed(1)} 公里`),
-  distanceFromSeoul: (km) =>
-    km < 1 ? `距首尔 ${Math.round(km * 1000)} 米` : `距首尔 ${km.toFixed(1)} 公里`,
+  distanceFromMyeongdong: (km) =>
+    km < 1 ? `距明洞 ${Math.round(km * 1000)} 米` : `距明洞 ${km.toFixed(1)} 公里`,
   detailAbout: '简介',
   detailAddress: '地址',
   detailTel: '联系方式',
@@ -221,9 +221,9 @@ const zhCN: Dict = {
   retry: '重试',
   loading: '正在加载商店…',
   locating: '正在获取你的位置…',
-  locationDenied: '定位权限被拒绝 — 改为显示首尔。你可以在浏览器设置中允许。',
-  locationUnavailable: '无法获取你的位置 — 改为显示首尔。',
-  locationFallback: '正在显示首尔',
+  locationDenied: '定位权限被拒绝 — 改为显示明洞。你可以在浏览器设置中允许。',
+  locationUnavailable: '无法获取你的位置 — 改为显示明洞。',
+  locationFallback: '正在显示明洞',
   useMyLocation: '使用我的位置',
   dataSource: '数据:韩国观光公社(TourAPI)',
   langLabel: '语言',
@@ -250,8 +250,8 @@ const zhTW: Dict = {
     '這些商店是韓國觀光公社標記的「事後免稅店」。我們無法告訴你退稅比例或能退回多少 — 這取決於商店與退稅業者。請務必在店內確認。',
   taxRefundGeneralInfo: '請攜帶護照。通常有最低消費金額等條件,實際規定因店而異。',
   distanceAway: (km) => (km < 1 ? `${Math.round(km * 1000)} 公尺` : `${km.toFixed(1)} 公里`),
-  distanceFromSeoul: (km) =>
-    km < 1 ? `距首爾 ${Math.round(km * 1000)} 公尺` : `距首爾 ${km.toFixed(1)} 公里`,
+  distanceFromMyeongdong: (km) =>
+    km < 1 ? `距明洞 ${Math.round(km * 1000)} 公尺` : `距明洞 ${km.toFixed(1)} 公里`,
   detailAbout: '簡介',
   detailAddress: '地址',
   detailTel: '聯絡方式',
@@ -266,9 +266,9 @@ const zhTW: Dict = {
   retry: '重試',
   loading: '正在載入商店…',
   locating: '正在取得你的位置…',
-  locationDenied: '定位權限被拒絕 — 改為顯示首爾。你可以在瀏覽器設定中允許。',
-  locationUnavailable: '無法取得你的位置 — 改為顯示首爾。',
-  locationFallback: '正在顯示首爾',
+  locationDenied: '定位權限被拒絕 — 改為顯示明洞。你可以在瀏覽器設定中允許。',
+  locationUnavailable: '無法取得你的位置 — 改為顯示明洞。',
+  locationFallback: '正在顯示明洞',
   useMyLocation: '使用我的位置',
   dataSource: '資料:韓國觀光公社(TourAPI)',
   langLabel: '語言',

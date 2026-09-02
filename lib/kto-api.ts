@@ -20,6 +20,7 @@
  */
 
 import { itemsOf, parseApiError, type ShopRaw } from './shops';
+import { secondsUntilKstMidnight } from './kst';
 
 const HOST = 'https://apis.data.go.kr/B551011';
 const TIMEOUT_MS = 6000;
@@ -47,10 +48,18 @@ function serviceKey(): string {
 
 const COMMON = 'MobileOS=ETC&MobileApp=kr-taxfree-now&_type=json';
 
-async function fetchJson(url: string): Promise<unknown> {
+/**
+ * @param revalidate Next Data Cache TTL(초). **인스턴스 간 공유되는 캐시**라, 콜드 인스턴스가
+ *   업스트림을 다시 때리지 않고 여기서 페이지를 읽는다(콜드 12페이지 수집 = 실측 4.5s 를 없앤다).
+ *   0 이면 캐시하지 않는다(no-store).
+ */
+async function fetchJson(url: string, revalidate: number): Promise<unknown> {
   const res = await fetch(url, {
     headers: { Accept: 'application/json' },
     signal: AbortSignal.timeout(TIMEOUT_MS),
+    // 라우트 응답 캐시(no-store)와 별개 레이어. 카탈로그는 하루 단위라 자정까지 공유 캐시한다.
+    next: revalidate > 0 ? { revalidate } : undefined,
+    ...(revalidate > 0 ? {} : { cache: 'no-store' as const }),
   });
   const text = await res.text();
   let json: unknown;
@@ -75,15 +84,18 @@ export async function fetchShops(service: string): Promise<ShopRaw[]> {
   const base =
     `${HOST}/${service}/areaBasedList2?serviceKey=${key}&${COMMON}` +
     `&arrange=A&contentTypeId=${CONTENT_TYPE_SHOPPING}&numOfRows=${PAGE_SIZE}`;
+  // 카탈로그 페이지는 KST 자정까지 공유 Data Cache. URL 이 날짜 무관하게 안정적이라
+  // 인스턴스 간에 캐시가 먹는다(콜드 인스턴스가 12페이지를 다시 안 받는다).
+  const revalidate = secondsUntilKstMidnight();
 
-  const first = await fetchJson(`${base}&pageNo=1`);
+  const first = await fetchJson(`${base}&pageNo=1`, revalidate);
   const total =
     (first as { response?: { body?: { totalCount?: number } } })?.response?.body?.totalCount ?? 0;
   const acc = itemsOf(first);
   const pages = Math.min(MAX_PAGES, Math.ceil(total / PAGE_SIZE));
 
   for (let p = 2; p <= pages; p += 1) {
-    const json = await fetchJson(`${base}&pageNo=${p}`);
+    const json = await fetchJson(`${base}&pageNo=${p}`, revalidate);
     acc.push(...itemsOf(json));
   }
   return acc;
@@ -105,6 +117,7 @@ export async function fetchDetailCommon(
   const url =
     `${HOST}/${service}/detailCommon2?serviceKey=${serviceKey()}&${COMMON}` +
     `&contentId=${encodeURIComponent(contentId)}`;
-  const json = await fetchJson(url);
+  // 상세는 자주 안 바뀐다. 12시간 공유 Data Cache(모듈 캐시 DETAIL_TTL_MS 와 동일).
+  const json = await fetchJson(url, 12 * 60 * 60);
   return (itemsOf(json)[0] as DetailCommonRaw | undefined) ?? null;
 }
