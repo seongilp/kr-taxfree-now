@@ -1,4 +1,4 @@
-# KR Tax-Free Now
+# 택스프리나우 (TaxFree Now)
 
 **Find tax-refund (사후면세) shops near you, on a map, in your language.**
 

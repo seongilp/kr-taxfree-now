@@ -92,7 +92,7 @@ export interface Dict {
 }
 
 const en: Dict = {
-  appName: 'KR Tax-Free Now',
+  appName: 'TaxFree Now',
   tagline: 'Tax-refund shops near you',
   heroTitle: 'Tax-free shopping near you, in your language',
   heroSubtitle:
@@ -139,7 +139,7 @@ const en: Dict = {
 };
 
 const ja: Dict = {
-  appName: 'KR Tax-Free Now',
+  appName: 'タックスフリーナウ',
   tagline: 'あなたの近くの免税店',
   heroTitle: 'あなたの近くの免税ショッピングを、あなたの言語で',
   heroSubtitle:
@@ -185,7 +185,7 @@ const ja: Dict = {
 };
 
 const zhCN: Dict = {
-  appName: 'KR Tax-Free Now',
+  appName: '免税Now',
   tagline: '你附近的退税商店',
   heroTitle: '用你的语言,发现你附近的退税购物',
   heroSubtitle:
@@ -230,7 +230,7 @@ const zhCN: Dict = {
 };
 
 const zhTW: Dict = {
-  appName: 'KR Tax-Free Now',
+  appName: '免稅Now',
   tagline: '你附近的退稅商店',
   heroTitle: '用你的語言,發現你附近的退稅購物',
   heroSubtitle:

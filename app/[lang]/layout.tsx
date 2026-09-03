@@ -47,6 +47,8 @@ export async function generateMetadata({
     metadataBase: new URL(SITE),
     title: `${d.appName} — ${d.tagline}`,
     description: d.heroSubtitle,
+    applicationName: d.appName,
+    appleWebApp: { title: d.appName },
     alternates: { canonical: `${SITE}/${lang}`, languages },
     openGraph: {
       title: `${d.appName} — ${d.tagline}`,
